@@ -19,7 +19,10 @@ class DepartmentCrudTests(TestCase):
             {'name': 'Computer Science', 'faculty': 'Science'},
         )
         department = Department.objects.get(name='Computer Science')
-        self.assertRedirects(create_response, reverse('entity-list', args=['departments']))
+        self.assertRedirects(
+            create_response,
+            reverse('entity-list', args=['departments']),
+        )
 
         update_response = self.client.post(
             reverse('entity-update', args=['departments', department.pk]),
@@ -27,10 +30,30 @@ class DepartmentCrudTests(TestCase):
         )
         department.refresh_from_db()
         self.assertEqual(department.name, 'Computing')
-        self.assertRedirects(update_response, reverse('entity-list', args=['departments']))
+        self.assertRedirects(
+            update_response,
+            reverse('entity-list', args=['departments']),
+        )
 
         delete_response = self.client.post(
             reverse('entity-delete', args=['departments', department.pk]),
         )
         self.assertFalse(Department.objects.exists())
-        self.assertRedirects(delete_response, reverse('entity-list', args=['departments']))
+        self.assertRedirects(
+            delete_response,
+            reverse('entity-list', args=['departments']),
+        )
+
+
+class DatabaseQueryTests(TestCase):
+    def test_query_page_offers_five_queries(self):
+        response = self.client.get(reverse('database-queries'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['options']), 5)
+
+    def test_selected_query_is_executed(self):
+        response = self.client.get(reverse('database-queries'), {'query': 'students'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(response.context['results'])

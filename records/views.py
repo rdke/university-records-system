@@ -2,7 +2,22 @@ from django.forms import modelform_factory
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import Course, Department, Lecturer, Programme, ResearchProject, Staff, Student
+from .models import (
+    Course,
+    Department,
+    Lecturer,
+    Programme,
+    ResearchProject,
+    Staff,
+    Student,
+)
+from .queries import (
+    completed_course_grades,
+    courses_with_lecturers,
+    projects_with_leads,
+    staff_with_departments,
+    students_with_programmes,
+)
 
 
 ENTITIES = {
@@ -15,6 +30,14 @@ ENTITIES = {
     'projects': (ResearchProject, 'Research Projects'),
 }
 
+QUERY_OPTIONS = {
+    'students': ('Students with programmes and advisors', students_with_programmes),
+    'courses': ('Courses with departments and lecturers', courses_with_lecturers),
+    'grades': ('Completed course grades', completed_course_grades),
+    'projects': ('Research projects with leads and students', projects_with_leads),
+    'staff': ('Staff grouped by department', staff_with_departments),
+}
+
 
 def get_entity(entity):
     try:
@@ -25,6 +48,25 @@ def get_entity(entity):
 
 def home(request):
     return render(request, 'records/home.html', {'entities': ENTITIES})
+
+
+def database_queries(request):
+    selected = request.GET.get('query')
+    results = None
+    title = None
+    if selected in QUERY_OPTIONS:
+        title, query = QUERY_OPTIONS[selected]
+        results = query()
+    return render(
+        request,
+        'records/queries.html',
+        {
+            'options': QUERY_OPTIONS,
+            'results': results,
+            'selected': selected,
+            'title': title,
+        },
+    )
 
 
 def entity_list(request, entity):

@@ -99,7 +99,11 @@ class Enrollment(models.Model):
 class ResearchProject(models.Model):
 	title = models.CharField(max_length=200)
 	lead_lecturer = models.ForeignKey(Lecturer, on_delete=models.PROTECT)
-	students = models.ManyToManyField(Student, related_name='research_projects', blank=True)
+	students = models.ManyToManyField(
+		Student,
+		related_name='research_projects',
+		blank=True,
+	)
 	funding_source = models.CharField(max_length=100, blank=True)
 
 	def __str__(self):

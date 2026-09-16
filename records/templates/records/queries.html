@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Database Queries</title>
+</head>
+<body>
+    <header><a href="{% url 'home' %}">University Records</a></header>
+    <main>
+        <h1>Database Queries</h1>
+        <ol>
+            {% for key, option in options.items %}
+                <li><a href="?query={{ key }}">{{ option.0 }}</a></li>
+            {% endfor %}
+        </ol>
+        {% if title %}
+            <h2>{{ title }}</h2>
+            <table>
+                <tbody>
+                    {% for record in results %}
+                        <tr>
+                            {% if selected == 'students' %}
+                                <td>{{ record.name }}</td>
+                                <td>{{ record.programme }}</td>
+                                <td>{{ record.advisor }}</td>
+                            {% elif selected == 'courses' %}
+                                <td>{{ record.course_code }}</td>
+                                <td>{{ record.name }}</td>
+                                <td>{{ record.department }}</td>
+                                <td>{% for lecturer in record.lecturers.all %}{{ lecturer }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                            {% elif selected == 'grades' %}
+                                <td>{{ record.student }}</td>
+                                <td>{{ record.course }}</td>
+                                <td>{{ record.grade }}</td>
+                            {% elif selected == 'projects' %}
+                                <td>{{ record.title }}</td>
+                                <td>{{ record.lead_lecturer }}</td>
+                                <td>{% for student in record.students.all %}{{ student }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                            {% elif selected == 'staff' %}
+                                <td>{{ record.name }}</td>
+                                <td>{{ record.job_title }}</td>
+                                <td>{{ record.department }}</td>
+                            {% endif %}
+                        </tr>
+                    {% empty %}
+                        <tr><td>No results found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </main>
+</body>
+</html>
