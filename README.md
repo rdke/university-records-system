@@ -30,7 +30,12 @@ Then run:
 
 ```bash
 python manage.py migrate
+python manage.py seed_data
 python manage.py runserver
 ```
 
 Open `http://127.0.0.1:8000/`.
+
+The application provides CRUD pages for departments, programmes, lecturers,
+students, staff, courses, and research projects. The database query page runs
+five queries through the Django ORM.
