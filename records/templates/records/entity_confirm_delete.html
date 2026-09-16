@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+</head>
+<body>
+    <header><a href="{% url 'home' %}">University Records</a></header>
+    <main>
+        <h1>{{ title }}</h1>
+        <p>Delete {{ record }}?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit">Delete</button>
+        </form>
+    </main>
+</body>
+</html>

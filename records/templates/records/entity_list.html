@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+</head>
+<body>
+    <header><a href="{% url 'home' %}">University Records</a></header>
+    <main>
+        <h1>{{ title }}</h1>
+        <p><a href="{% url 'entity-create' entity %}">Add record</a></p>
+        <ul>
+            {% for record in objects %}
+                <li>
+                    {{ record }}
+                    <a href="{% url 'entity-update' entity record.pk %}">Edit</a>
+                    <a href="{% url 'entity-delete' entity record.pk %}">Delete</a>
+                </li>
+            {% empty %}
+                <li>No records found.</li>
+            {% endfor %}
+        </ul>
+    </main>
+</body>
+</html>

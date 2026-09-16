@@ -7,10 +7,17 @@
 </head>
 <body>
     <header>
-        header
+        <a href="{% url 'home' %}">University Records</a>
     </header>
     <main>
-        University Records
+        <h1>University Records</h1>
+        <nav>
+            <ul>
+                {% for entity, details in entities.items %}
+                    <li><a href="{% url 'entity-list' entity %}">{{ details.1 }}</a></li>
+                {% endfor %}
+            </ul>
+        </nav>
     </main>
 </body>
 </html>
