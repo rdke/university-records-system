@@ -2,6 +2,11 @@ from django.shortcuts import render
 from .queries import (
     completed_course_grades,
     courses_with_lecturers,
+    courses_with_prerequisites,
+    enrolled_students,
+    funded_research_projects,
+    lecturer_qualifications,
+    pending_course_grades,
     projects_with_leads,
     staff_with_departments,
     students_with_programmes,
@@ -14,6 +19,11 @@ QUERY_OPTIONS = {
     'grades': ('Completed course grades', completed_course_grades),
     'projects': ('Research projects with leads and students', projects_with_leads),
     'staff': ('Staff grouped by department', staff_with_departments),
+    'enrolled': ('Enrolled students by programme', enrolled_students),
+    'pending-grades': ('Course enrollments with pending grades', pending_course_grades),
+    'prerequisites': ('Courses with prerequisites', courses_with_prerequisites),
+    'qualifications': ('Lecturer qualifications', lecturer_qualifications),
+    'funding': ('Funded research projects', funded_research_projects),
 }
 
 

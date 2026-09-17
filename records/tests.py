@@ -14,17 +14,34 @@ class HomeViewTests(TestCase):
 
 
 class DatabaseQueryTests(TestCase):
-    def test_query_page_offers_five_queries(self):
+    def test_query_page_offers_ten_queries(self):
         response = self.client.get(reverse('database-queries'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['options']), 5)
+        self.assertEqual(len(response.context['options']), 10)
 
-    def test_selected_query_is_executed(self):
-        response = self.client.get(reverse('database-queries'), {'query': 'students'})
+    def test_each_query_is_executed(self):
+        query_names = [
+            'students',
+            'courses',
+            'grades',
+            'projects',
+            'staff',
+            'enrolled',
+            'pending-grades',
+            'prerequisites',
+            'qualifications',
+            'funding',
+        ]
 
-        self.assertEqual(response.status_code, 200)
-        self.assertIsNotNone(response.context['results'])
+        for query_name in query_names:
+            response = self.client.get(
+                reverse('database-queries'),
+                {'query': query_name},
+            )
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIsNotNone(response.context['results'])
 
 
 class SeedDataTests(TestCase):

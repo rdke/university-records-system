@@ -1,4 +1,4 @@
-from .models import Course, Enrollment, ResearchProject, Staff, Student
+from .models import Course, Enrollment, LecturerQualification, ResearchProject, Staff, Student
 
 
 def students_with_programmes():
@@ -34,3 +34,36 @@ def staff_with_departments():
         'department__name',
         'name',
     )
+
+
+def enrolled_students():
+    return (
+        Student.objects.filter(graduation_status=Student.GraduationStatus.ENROLLED)
+        .select_related('programme')
+        .order_by('name')
+    )
+
+
+def pending_course_grades():
+    return (
+        Enrollment.objects.filter(grade__isnull=True)
+        .select_related('student', 'course')
+        .order_by('course__course_code', 'student__name')
+    )
+
+
+def courses_with_prerequisites():
+    return Course.objects.prefetch_related('prerequisites').order_by('course_code')
+
+
+def lecturer_qualifications():
+    return LecturerQualification.objects.select_related('lecturer').order_by(
+        'lecturer__name',
+        'qualification',
+    )
+
+
+def funded_research_projects():
+    return ResearchProject.objects.exclude(funding_source='').select_related(
+        'lead_lecturer'
+    ).order_by('title')
