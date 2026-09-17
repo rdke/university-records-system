@@ -12,13 +12,6 @@
     <main>
         <h1>University Records</h1>
         <p><a href="{% url 'database-queries' %}">Run database queries</a></p>
-        <nav>
-            <ul>
-                {% for entity, details in entities.items %}
-                    <li><a href="{% url 'entity-list' entity %}">{{ details.1 }}</a></li>
-                {% endfor %}
-            </ul>
-        </nav>
     </main>
 </body>
 </html>
