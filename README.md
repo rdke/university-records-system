@@ -30,7 +30,11 @@ Then run:
 
 ```bash
 python manage.py migrate
+python manage.py seed_data
 python manage.py runserver
 ```
 
 Open `http://127.0.0.1:8000/`.
+
+The application provides a database query page with five queries executed
+through the Django ORM.

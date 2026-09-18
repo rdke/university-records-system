@@ -1,0 +1,104 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Database Queries</title>
+    <link rel="stylesheet" href="{% static 'records/styles.css' %}">
+</head>
+<body>
+    <header><a class="brand" href="{% url 'home' %}">University Records</a></header>
+    <main>
+        <p class="eyebrow">Query Interface</p>
+        <h1>Database Queries</h1>
+        <ol class="query-list">
+            {% for key, option in options.items %}
+                <li><a href="?query={{ key }}">{{ option.0 }}</a></li>
+            {% endfor %}
+        </ol>
+        {% if title %}
+            <section class="results">
+            <h2>{{ title }}</h2>
+            <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        {% if selected == 'students' %}
+                            <th>Student</th><th>Programme</th><th>Advisor</th>
+                        {% elif selected == 'courses' %}
+                            <th>Code</th><th>Course</th><th>Department</th><th>Lecturers</th>
+                        {% elif selected == 'grades' %}
+                            <th>Student</th><th>Course</th><th>Grade</th>
+                        {% elif selected == 'projects' %}
+                            <th>Project</th><th>Lead Lecturer</th><th>Students</th>
+                        {% elif selected == 'staff' %}
+                            <th>Staff Member</th><th>Job Title</th><th>Department</th>
+                        {% elif selected == 'enrolled' %}
+                            <th>Student</th><th>Programme</th><th>Year of Study</th>
+                        {% elif selected == 'pending-grades' %}
+                            <th>Student</th><th>Course</th><th>Grade</th>
+                        {% elif selected == 'prerequisites' %}
+                            <th>Course</th><th>Prerequisites</th>
+                        {% elif selected == 'qualifications' %}
+                            <th>Lecturer</th><th>Qualification</th>
+                        {% elif selected == 'funding' %}
+                            <th>Project</th><th>Lead Lecturer</th><th>Funding Source</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in results %}
+                        <tr>
+                            {% if selected == 'students' %}
+                                <td>{{ record.name }}</td>
+                                <td>{{ record.programme }}</td>
+                                <td>{{ record.advisor }}</td>
+                            {% elif selected == 'courses' %}
+                                <td>{{ record.course_code }}</td>
+                                <td>{{ record.name }}</td>
+                                <td>{{ record.department }}</td>
+                                <td>{% for lecturer in record.lecturers.all %}{{ lecturer }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                            {% elif selected == 'grades' %}
+                                <td>{{ record.student }}</td>
+                                <td>{{ record.course }}</td>
+                                <td>{{ record.grade }}</td>
+                            {% elif selected == 'projects' %}
+                                <td>{{ record.title }}</td>
+                                <td>{{ record.lead_lecturer }}</td>
+                                <td>{% for student in record.students.all %}{{ student }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                            {% elif selected == 'staff' %}
+                                <td>{{ record.name }}</td>
+                                <td>{{ record.job_title }}</td>
+                                <td>{{ record.department }}</td>
+                            {% elif selected == 'enrolled' %}
+                                <td>{{ record.name }}</td>
+                                <td>{{ record.programme }}</td>
+                                <td>{{ record.year_of_study }}</td>
+                            {% elif selected == 'pending-grades' %}
+                                <td>{{ record.student }}</td>
+                                <td>{{ record.course }}</td>
+                                <td>Pending</td>
+                            {% elif selected == 'prerequisites' %}
+                                <td>{{ record }}</td>
+                                <td>{% for course in record.prerequisites.all %}{{ course }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                            {% elif selected == 'qualifications' %}
+                                <td>{{ record.lecturer }}</td>
+                                <td>{{ record.qualification }}</td>
+                            {% elif selected == 'funding' %}
+                                <td>{{ record.title }}</td>
+                                <td>{{ record.lead_lecturer }}</td>
+                                <td>{{ record.funding_source }}</td>
+                            {% endif %}
+                        </tr>
+                    {% empty %}
+                        <tr><td>No results found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            </section>
+        {% endif %}
+    </main>
+</body>
+</html>
