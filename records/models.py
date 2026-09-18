@@ -90,6 +90,7 @@ class Enrollment(models.Model):
 	class Meta:
 		constraints = [
 			models.UniqueConstraint(fields=['student', 'course'], name='unique_enrollment'),
+			models.CheckConstraint(condition=models.Q(grade__gte=0) & models.Q(grade__lte=100), name='grade_range'),
 		]
 
 	def __str__(self):
