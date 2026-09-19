@@ -75,9 +75,25 @@ class Course(models.Model):
 	name = models.CharField(max_length=100)
 	description = models.TextField(blank=True)
 	department = models.ForeignKey(Department, on_delete=models.PROTECT)
-	programmes = models.ManyToManyField(Programme, related_name='courses', blank=True)
-	lecturers = models.ManyToManyField(Lecturer, related_name='courses', blank=True)
-	prerequisites = models.ManyToManyField('self', symmetrical=False, blank=True)
+	programmes = models.ManyToManyField(
+		Programme,
+		through='ProgrammeCourse',
+		related_name='courses',
+		blank=True,
+	)
+	lecturers = models.ManyToManyField(
+		Lecturer,
+		through='LecturerCourse',
+		related_name='courses',
+		blank=True,
+	)
+	prerequisites = models.ManyToManyField(
+		'self',
+		through='CoursePrerequisite',
+		through_fields=('course', 'prerequisite'),
+		symmetrical=False,
+		blank=True,
+	)
 	level = models.PositiveSmallIntegerField()
 	credits = models.PositiveSmallIntegerField()
 	schedule = models.CharField(max_length=100, blank=True)
@@ -110,7 +126,7 @@ class ResearchGroup(models.Model):
 
 class Enrollment(models.Model):
 	student = models.ForeignKey(Student, on_delete=models.CASCADE)
-	course = models.ForeignKey(Course, on_delete=models.CASCADE)
+	course = models.ForeignKey(Course, on_delete=models.PROTECT)
 	grade = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
 
 	class Meta:
@@ -121,6 +137,62 @@ class Enrollment(models.Model):
 
 	def __str__(self):
 		return f'{self.student} - {self.course.course_code}'
+
+
+class LecturerCourse(models.Model):
+	lecturer = models.ForeignKey(Lecturer, on_delete=models.PROTECT)
+	course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['lecturer', 'course'],
+				name='unique_lecturer_course',
+			),
+		]
+
+	def __str__(self):
+		return f'{self.lecturer} - {self.course.course_code}'
+
+
+class ProgrammeCourse(models.Model):
+	programme = models.ForeignKey(Programme, on_delete=models.CASCADE)
+	course = models.ForeignKey(Course, on_delete=models.PROTECT)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['programme', 'course'],
+				name='unique_programme_course',
+			),
+		]
+
+	def __str__(self):
+		return f'{self.programme} - {self.course.course_code}'
+
+
+class CoursePrerequisite(models.Model):
+	course = models.ForeignKey(
+		Course,
+		on_delete=models.CASCADE,
+		related_name='prerequisite_links',
+	)
+	prerequisite = models.ForeignKey(
+		Course,
+		on_delete=models.PROTECT,
+		related_name='required_by_links',
+	)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['course', 'prerequisite'],
+				name='unique_course_prerequisite',
+			),
+		]
+
+	def __str__(self):
+		return f'{self.course.course_code} requires {self.prerequisite.course_code}'
 
 
 class ResearchProject(models.Model):
