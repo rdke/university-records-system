@@ -22,6 +22,7 @@ class Lecturer(models.Model):
 	name = models.CharField(max_length=100)
 	email = models.EmailField(unique=True)
 	department = models.ForeignKey(Department, on_delete=models.PROTECT)
+	committees = models.ManyToManyField('Committee', related_name='lecturers', blank=True)
 
 	def __str__(self):
 		return self.name
@@ -36,7 +37,7 @@ class Student(models.Model):
 	name = models.CharField(max_length=100)
 	birth_date = models.DateField()
 	email = models.EmailField(unique=True)
-	phone = models.CharField(max_length=20, blank=True)
+	phone = models.CharField(max_length=20, blank=True, null=True)
 	programme = models.ForeignKey(Programme, on_delete=models.PROTECT)
 	year_of_study = models.PositiveSmallIntegerField()
 	graduation_status = models.CharField(
@@ -45,6 +46,7 @@ class Student(models.Model):
 		default=GraduationStatus.ENROLLED,
 	)
 	advisor = models.ForeignKey(Lecturer, on_delete=models.PROTECT)
+	societies = models.ManyToManyField('Society', related_name='students', blank=True)
 
 	def __str__(self):
 		return self.name
@@ -61,6 +63,8 @@ class Staff(models.Model):
 	employment_type = models.CharField(max_length=10, choices=EmploymentType.choices)
 	contract_end_date = models.DateField(blank=True, null=True)
 	salary = models.DecimalField(max_digits=10, decimal_places=2)
+	emergency_contact_name = models.CharField(max_length=100, default='')
+	emergency_contact_phone = models.CharField(max_length=20, default='')
 
 	def __str__(self):
 		return self.name
@@ -82,6 +86,28 @@ class Course(models.Model):
 		return f'{self.course_code} - {self.name}'
 
 
+class Society(models.Model):
+	name = models.CharField(max_length=100, unique=True)
+
+	def __str__(self):
+		return self.name
+
+
+class Committee(models.Model):
+	name = models.CharField(max_length=100, unique=True)
+
+	def __str__(self):
+		return self.name
+
+
+class ResearchGroup(models.Model):
+	name = models.CharField(max_length=100, unique=True)
+	head_lecturer = models.OneToOneField(Lecturer, on_delete=models.PROTECT)
+
+	def __str__(self):
+		return self.name
+
+
 class Enrollment(models.Model):
 	student = models.ForeignKey(Student, on_delete=models.CASCADE)
 	course = models.ForeignKey(Course, on_delete=models.CASCADE)
@@ -100,12 +126,29 @@ class Enrollment(models.Model):
 class ResearchProject(models.Model):
 	title = models.CharField(max_length=200)
 	lead_lecturer = models.ForeignKey(Lecturer, on_delete=models.PROTECT)
+	research_group = models.ForeignKey(
+		ResearchGroup,
+		on_delete=models.PROTECT,
+	)
 	students = models.ManyToManyField(
 		Student,
 		related_name='research_projects',
 		blank=True,
 	)
-	funding_source = models.CharField(max_length=100, blank=True)
+	def __str__(self):
+		return self.title
+
+
+class Publication(models.Model):
+	lecturer = models.ForeignKey(Lecturer, on_delete=models.PROTECT)
+	project = models.ForeignKey(
+		ResearchProject,
+		on_delete=models.PROTECT,
+		blank=True,
+		null=True,
+	)
+	title = models.CharField(max_length=200)
+	published_date = models.DateField()
 
 	def __str__(self):
 		return self.title
@@ -125,6 +168,102 @@ class LecturerQualification(models.Model):
 
 	def __str__(self):
 		return f'{self.lecturer} - {self.qualification}'
+
+
+class LecturerExpertise(models.Model):
+	lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE)
+	expertise = models.CharField(max_length=100)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['lecturer', 'expertise'],
+				name='unique_lecturer_expertise',
+			),
+		]
+
+	def __str__(self):
+		return f'{self.lecturer} - {self.expertise}'
+
+
+class LecturerResearchInterest(models.Model):
+	lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE)
+	research_interest = models.CharField(max_length=100)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['lecturer', 'research_interest'],
+				name='unique_lecturer_research_interest',
+			),
+		]
+
+	def __str__(self):
+		return f'{self.lecturer} - {self.research_interest}'
+
+
+class DepartmentResearchArea(models.Model):
+	department = models.ForeignKey(Department, on_delete=models.CASCADE)
+	research_area = models.CharField(max_length=100)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['department', 'research_area'],
+				name='unique_department_research_area',
+			),
+		]
+
+	def __str__(self):
+		return f'{self.department} - {self.research_area}'
+
+
+class CourseMaterial(models.Model):
+	course = models.ForeignKey(Course, on_delete=models.CASCADE)
+	material = models.CharField(max_length=150)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['course', 'material'],
+				name='unique_course_material',
+			),
+		]
+
+	def __str__(self):
+		return f'{self.course} - {self.material}'
+
+
+class ProjectFunding(models.Model):
+	project = models.ForeignKey(ResearchProject, on_delete=models.CASCADE)
+	funding_source = models.CharField(max_length=100)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['project', 'funding_source'],
+				name='unique_project_funding_source',
+			),
+		]
+
+	def __str__(self):
+		return f'{self.project} - {self.funding_source}'
+
+
+class ProjectOutcome(models.Model):
+	project = models.ForeignKey(ResearchProject, on_delete=models.CASCADE)
+	outcome = models.CharField(max_length=200)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['project', 'outcome'],
+				name='unique_project_outcome',
+			),
+		]
+
+	def __str__(self):
+		return f'{self.project} - {self.outcome}'
 
 
 class DisciplinaryRecord(models.Model):
