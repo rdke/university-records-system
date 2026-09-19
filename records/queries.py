@@ -1,4 +1,12 @@
-from .models import Course, Enrollment, LecturerQualification, ResearchProject, Staff, Student
+from .models import (
+    Course,
+    Enrollment,
+    LecturerQualification,
+    ProjectFunding,
+    ResearchProject,
+    Staff,
+    Student,
+)
 
 
 def students_with_programmes():
@@ -64,6 +72,7 @@ def lecturer_qualifications():
 
 
 def funded_research_projects():
-    return ResearchProject.objects.exclude(funding_source='').select_related(
-        'lead_lecturer'
-    ).order_by('title')
+    return ProjectFunding.objects.select_related(
+        'project',
+        'project__lead_lecturer',
+    ).order_by('project__title', 'funding_source')
