@@ -86,8 +86,8 @@
                                 <td>{{ record.lecturer }}</td>
                                 <td>{{ record.qualification }}</td>
                             {% elif selected == 'funding' %}
-                                <td>{{ record.title }}</td>
-                                <td>{{ record.lead_lecturer }}</td>
+                                <td>{{ record.project.title }}</td>
+                                <td>{{ record.project.lead_lecturer }}</td>
                                 <td>{{ record.funding_source }}</td>
                             {% endif %}
                         </tr>

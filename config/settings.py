@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQL_DATABASE', 'university_records'),
+        'NAME': os.environ.get('MYSQL_DATABASE', 'university'),
         'USER': os.environ.get('MYSQL_USER', 'root'),
         'PASSWORD': os.environ.get('MYSQL_PASSWORD', ''),
         'HOST': os.environ.get('MYSQL_HOST', '127.0.0.1'),

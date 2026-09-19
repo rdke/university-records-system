@@ -5,14 +5,24 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from records.models import (
+    Committee,
     Course,
+    CourseMaterial,
     Department,
+    DepartmentResearchArea,
     DisciplinaryRecord,
     Enrollment,
     Lecturer,
+    LecturerExpertise,
     LecturerQualification,
+    LecturerResearchInterest,
+    ProjectFunding,
+    ProjectOutcome,
     Programme,
+    Publication,
+    ResearchGroup,
     ResearchProject,
+    Society,
     Staff,
     Student,
 )
@@ -53,6 +63,24 @@ class Command(BaseCommand):
             email='p.nair@example.ac.uk',
             defaults={'name': 'Dr Priya Nair', 'department': mathematics},
         )
+        teaching_committee, _ = Committee.objects.get_or_create(
+            name='Teaching and Learning Committee'
+        )
+        ethics_committee, _ = Committee.objects.get_or_create(
+            name='Research Ethics Committee'
+        )
+        lecturer_one.committees.set([teaching_committee])
+        lecturer_two.committees.set([teaching_committee, ethics_committee])
+        lecturer_three.committees.set([ethics_committee])
+
+        data_systems, _ = ResearchGroup.objects.update_or_create(
+            name='Data Systems Group',
+            defaults={'head_lecturer': lecturer_one},
+        )
+        machine_intelligence, _ = ResearchGroup.objects.update_or_create(
+            name='Machine Intelligence Group',
+            defaults={'head_lecturer': lecturer_two},
+        )
 
         student_one, _ = Student.objects.update_or_create(
             email='a.turner@example.ac.uk',
@@ -86,6 +114,10 @@ class Command(BaseCommand):
                 'advisor': lecturer_three,
             },
         )
+        computing_society, _ = Society.objects.get_or_create(name='Computing Society')
+        chess_society, _ = Society.objects.get_or_create(name='Chess Society')
+        student_one.societies.set([computing_society, chess_society])
+        student_two.societies.set([computing_society])
 
         Staff.objects.update_or_create(
             name='Fatima Hassan',
@@ -94,6 +126,8 @@ class Command(BaseCommand):
                 'department': computing,
                 'employment_type': Staff.EmploymentType.FULL_TIME,
                 'salary': Decimal('29500.00'),
+                'emergency_contact_name': 'Omar Hassan',
+                'emergency_contact_phone': '07700 900201',
             },
         )
         Staff.objects.update_or_create(
@@ -104,6 +138,8 @@ class Command(BaseCommand):
                 'employment_type': Staff.EmploymentType.PART_TIME,
                 'contract_end_date': date(2027, 8, 31),
                 'salary': Decimal('18200.00'),
+                'emergency_contact_name': 'Sian Price',
+                'emergency_contact_phone': '07700 900202',
             },
         )
 
@@ -147,6 +183,10 @@ class Command(BaseCommand):
         databases.prerequisites.set([programming])
         statistics.programmes.set([data_science])
         statistics.lecturers.set([lecturer_three])
+        CourseMaterial.objects.get_or_create(
+            course=databases,
+            material='Lecture slides weeks 1-10',
+        )
 
         Enrollment.objects.update_or_create(
             student=student_one,
@@ -168,18 +208,40 @@ class Command(BaseCommand):
             title='Scalable Query Processing',
             defaults={
                 'lead_lecturer': lecturer_one,
-                'funding_source': 'EPSRC',
+                'research_group': data_systems,
             },
         )
         project_two, _ = ResearchProject.objects.update_or_create(
             title='Explainable Machine Learning',
             defaults={
                 'lead_lecturer': lecturer_two,
-                'funding_source': 'UKRI',
+                'research_group': machine_intelligence,
             },
         )
         project_one.students.set([student_one])
         project_two.students.set([student_one, student_two])
+        ProjectFunding.objects.get_or_create(
+            project=project_one,
+            funding_source='EPSRC',
+        )
+        ProjectFunding.objects.get_or_create(
+            project=project_two,
+            funding_source='UKRI',
+        )
+        ProjectFunding.objects.get_or_create(
+            project=project_two,
+            funding_source='NHS England',
+        )
+        ProjectOutcome.objects.get_or_create(
+            project=project_one,
+            outcome='Open-source prototype query engine',
+        )
+        Publication.objects.get_or_create(
+            lecturer=lecturer_one,
+            project=project_one,
+            title='Adaptive Indexing for Sensor Streams',
+            published_date=date(2026, 3, 10),
+        )
 
         LecturerQualification.objects.get_or_create(
             lecturer=lecturer_one,
@@ -188,6 +250,18 @@ class Command(BaseCommand):
         LecturerQualification.objects.get_or_create(
             lecturer=lecturer_three,
             qualification='PhD Statistics',
+        )
+        LecturerExpertise.objects.get_or_create(
+            lecturer=lecturer_one,
+            expertise='Databases',
+        )
+        LecturerResearchInterest.objects.get_or_create(
+            lecturer=lecturer_two,
+            research_interest='Machine Learning',
+        )
+        DepartmentResearchArea.objects.get_or_create(
+            department=computing,
+            research_area='Data Systems',
         )
         DisciplinaryRecord.objects.get_or_create(
             student=student_two,
