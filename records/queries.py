@@ -61,7 +61,12 @@ def pending_course_grades():
 
 
 def courses_with_prerequisites():
-    return Course.objects.prefetch_related('prerequisites').order_by('course_code')
+    return (
+        Course.objects.filter(prerequisites__isnull=False)
+        .prefetch_related('prerequisites')
+        .distinct()
+        .order_by('course_code')
+    )
 
 
 def lecturer_qualifications():
